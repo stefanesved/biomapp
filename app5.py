@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 
 # Load biometric data
-df = pd.read_csv("biometric_data_2.csv")
+df = pd.read_csv("biometric_data.csv")
 df["Date"] = pd.to_datetime(df["Date"])
 
 # Mock height mapping
@@ -45,7 +45,11 @@ app.layout = dbc.Container([
     ], justify="center"),
 
     dbc.Row([
-        dbc.Col(html.Div(id="summary-table"), width=6)
+        dbc.Col(html.Div(id="summary-table"), width=12)
+    ], justify="center", className="mb-4"),
+
+    dbc.Row([
+        dbc.Col(dcc.Graph(id="radar-graph"), width=12)
     ], justify="center", className="mb-4"),
 
     dbc.Tabs([
@@ -63,6 +67,7 @@ app.layout = dbc.Container([
 
 @app.callback(
     [Output("weight-graph", "figure"),
+     Output("radar-graph", "figure"),
      Output("bodyfat-graph", "figure"),
      Output("muscle-graph", "figure"),
      Output("summary-table", "children"),
@@ -118,8 +123,32 @@ def update_figures(patient):
     ))
     heatmap_fig.update_layout(title="Hydration & Sleep Quality", template="plotly_white")
 
-    return weight_fig, bodyfat_fig, muscle_fig, table, heatmap_fig
+    # Radar Chart
+    radar_fig = go.Figure()
+    radar_fig.add_trace(go.Scatterpolar(
+        r=[latest["Body Fat (%)"], latest["Muscle Mass (%)"], latest["BMI"], latest["Hydration (%)"], latest["Sleep Quality"]],
+        theta=["Body Fat %", "Muscle Mass %", "BMI", "Hydration %", "Sleep Quality"],
+        fill='toself',
+        name='Current Profile'
+    ))
+    radar_fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100],
+                tickfont=dict(size=12, color="gray")
+            ),
+            angularaxis=dict(
+                tickfont=dict(size=13, color="black")
+            )
+        ),
+        title={"text": "Current Body Composition Snapshot", "x": 0.5},
+        template="plotly_white",
+        margin=dict(l=40, r=40, t=60, b=30),
+        height=450
+    )
 
+    return weight_fig, radar_fig, bodyfat_fig, muscle_fig, table, heatmap_fig
 
 if __name__ == "__main__":
     import os
