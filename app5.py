@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 
 # Load biometric data
-df = pd.read_csv("biometric_data.csv")
+df = pd.read_csv("biometric_data_2.csv")
 df["Date"] = pd.to_datetime(df["Date"])
 
 # Mock height mapping
