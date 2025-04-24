@@ -11,19 +11,29 @@ from sklearn.linear_model import LinearRegression
 df = pd.read_csv("biometric_data_2.csv")
 df["Date"] = pd.to_datetime(df["Date"])
 
-# Mock height mapping
-height_map = {
-    "Alice Smith": 165,
-    "Bob Johnson": 178,
-    "Carlos Diaz": 172,
-}
-df["Height (cm)"] = df["Patient"].map(height_map)
+df["Height (m)"] = df["Height (cm)"] / 100
+df["BMI"] = df["Weight (kg)"] / (df["Height (m)"] ** 2)
 df["Height (m)"] = df["Height (cm)"] / 100
 df["BMI"] = df["Weight (kg)"] / (df["Height (m)"] ** 2)
 
 # Add mock hydration and sleep quality data (for heatmap)
 df["Hydration (%)"] = np.clip(np.random.normal(60, 5, size=len(df)), 50, 70)
 df["Sleep Quality"] = np.random.randint(1, 10, size=len(df))
+
+def run_calculations(df):
+    # Placeholder equation 1: Add weight and muscle mass
+    df["Calc1"] = df["Weight (kg)"] + df["Muscle Mass (%)"]
+
+    # Placeholder equation 2: Add body fat and hydration
+    df["Calc2"] = df["Body Fat (%)"] + df["Hydration (%)"]
+
+    # Placeholder equation 3: Add sleep quality and BMI
+    df["Calc3"] = df["Sleep Quality"] + df["BMI"]
+
+    return df
+
+# Run calculations after data preparation
+df = run_calculations(df)
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.title = "Enhanced Biometric Dashboard"
